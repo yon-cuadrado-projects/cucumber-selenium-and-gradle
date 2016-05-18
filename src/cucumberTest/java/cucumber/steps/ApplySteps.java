@@ -1,4 +1,4 @@
-package steps;
+package cucumber.steps;
 
 import org.openqa.selenium.support.PageFactory;
 
