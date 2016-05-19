@@ -16,4 +16,4 @@ include 'api'
 include 'services:webservice'
 */
 
-rootProject.name = 'eclipse-gradle-webdriver2'
+rootProject.name = 'eclipse-gradle-cucumber-github'
