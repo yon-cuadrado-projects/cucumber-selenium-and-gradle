@@ -6,13 +6,38 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.commercehub:gradle-cucumber-jvm-plugin:0.6'
+			    classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.1.9'
+			    classpath 'de.undercouch:gradle-download-task:2.1.0'
+			    classpath 'com.commercehub:gradle-cucumber-jvm-plugin:0.6'
     }
 }
+
+
+
 
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
 apply plugin: 'cucumber-jvm'
+
+//sourceSets 
+//{
+//	main 
+//	{
+//		java 
+//		{
+//	    	srcDirs = ['src/main/java', 'src/test/java','src/cucumber/resources/steps'] // want to override the default
+//	    }
+//	    resources 
+//	    {
+//	        // cannot omit the '=' because this would try to
+//	         // index into the 'srcDirs' value
+//	        srcDirs = ['Resources', 'other/resources', 'src/main/resources']
+//	         include '*.xml', '*.properties'
+//			// or: '**/*.xml', '**/*.properties'
+//			output.resourcesDir = 'Resources'
+//        }
+//	}
+//}
 
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -61,13 +86,92 @@ dependencies {
     //testCompile 'junit:junit:4.12'
 }
 
+import de.undercouch.gradle.tasks.download.Download
+
+// Download the firebug addin in the build folder
+task downloadFirebug(type: Download) {
+  src 'https://addons.mozilla.org/firefox/downloads/latest/1843/addon-1843-latest.xpi?src=dp-btn-primary'
+  dest new File(buildDir, 'firebug-2.0.16-fx.xpi')
+  quiet false
+  overwrite true
+  onlyIfNewer true
+  compress false
+  println "Download firebug addin: " + src
+}
+
+// Download the ie driver zip
+task downloadIEDriverZip(type: Download){
+  src 'http://selenium-release.storage.googleapis.com/2.52/IEDriverServer_Win32_2.52.0.zip'
+  dest new File(buildDir, 'IEDriverServer.zip')
+  quiet false
+  overwrite true
+  onlyIfNewer true
+  compress false
+  println "Download IE driver: " + src
+}
+
+// Unzip the ie driver in the build folder
+task downloadAndUnzipIEDriver(dependsOn: downloadIEDriverZip, type: Copy){
+  println "Unzip IE driver: " + downloadIEDriverZip.dest
+  from zipTree(downloadIEDriverZip.dest)
+  into buildDir
+}
+
+import org.gradle.internal.os.OperatingSystem;
+
+task downloadChromeDriverZip(type: Download){
+  if (OperatingSystem.current().isMacOsX()) 
+  {
+    src 'http://chromedriver.storage.googleapis.com/2.21/chromedriver_mac32.zip'
+  }
+  else if (OperatingSystem.current().isLinux()) 
+  {
+    src 'http://chromedriver.storage.googleapis.com/2.21/chromedriver_linux64.zip'
+  }
+  else 
+  {
+    src 'http://chromedriver.storage.googleapis.com/2.21/chromedriver_win32.zip'
+  }
+  
+  dest new File(buildDir, 'chromedriver.zip')
+  quiet false
+  overwrite true
+  onlyIfNewer true
+  compress false
+  println "Download Chrome driver: " + src + " to " + dest
+}
+
+task downloadAndUnzipChromeDriver(dependsOn: downloadChromeDriverZip, type: Copy){
+  println "Unzip Chrome driver: " + downloadChromeDriverZip.dest
+  from zipTree(downloadChromeDriverZip.dest)
+  into buildDir
+}
+
+task chrome(type: Test, dependsOn: downloadAndUnzipChromeDriver){
+  String extension = OperatingSystem.current().isWindows() ? '.exe' : ''
+  File chromeDriver = new File(buildDir, 'chromedriver' + extension);
+  systemProperties['webdriver.chrome.driver'] = chromeDriver
+  println "Use Chrome driver: $chromeDriver"
+
+  systemProperties['webdriver.chrome.driver'] = chromeDriver
+}
+
+task firefox(type: Test){
+  systemProperties['selenide.browser'] = 'firefox'
+}
+
+
 addCucumberSuite 'cucumberTest'
 
 cucumber {
     maxParallelForks = 3
 }
 
+// In order to work, it has to exist a sources folder with the name src/cucumberTest/sources
+// this directory has to have a package with the name features containing the features that will be executed
+// The config.properties file has to be in the same folder: src/cucumberTest/sources
 cucumberTest {
+	systemProperties['user.dir'] = projectDir
     stepDefinitionRoots = ['classpath:cucumber/steps']
     junitReport = true
     isStrict = true

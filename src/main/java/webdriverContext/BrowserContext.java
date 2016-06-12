@@ -20,7 +20,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 /**
  * @author demian
  */
-
 public class BrowserContext
 {
 	protected WebDriver driver;
@@ -28,7 +27,6 @@ public class BrowserContext
 	protected WebDriverWait webDriverWait;
 
 	public BrowserContext(BrowserType browserType) throws IOException, Exception
-
 	{
 		try
 		{
@@ -36,7 +34,6 @@ public class BrowserContext
 			this.generalProperties = new ConfigProperties();
 			if (browserType.equals(BrowserType.Firefox))
 			{
-
 				// String PROXY = "proxymaja.grupodelaware.com:8080";
 				Proxy proxy = new Proxy();
 				proxy.setProxyType(ProxyType.SYSTEM);
@@ -66,13 +63,10 @@ public class BrowserContext
 				{
 					Path = System.getProperty("user.dir") + "\\build\\" + "chromedriver.exe";
 				}
-
 				System.setProperty("webdriver.chrome.driver", Path);
 				this.driver = new ChromeDriver();
 			}
-
 			else if (browserType.equals(BrowserType.IE))
-
 			{
 				// String path = generalProperties.ie32DriverPath;
 				//
@@ -88,14 +82,12 @@ public class BrowserContext
 				//
 				// driver = new InternetExplorerDriver(iecap);
 			}
-
 			else if (browserType.equals(BrowserType.Safari))
 			{
 				this.driver = new SafariDriver();
 			}
 			// log.debug("End. Creation of the browers object");
 		}
-
 		catch (Exception e)
 		{
 			throw e;
@@ -108,7 +100,6 @@ public class BrowserContext
 		{
 			Thread.sleep(millis);
 		}
-
 		catch (InterruptedException e)
 		{
 			e.printStackTrace();
@@ -132,20 +123,9 @@ public class BrowserContext
 
 	public void init(String strStartURL)
 	{
-		// log.debug("Start. Load the webpage");
-		// navigate to an url
 		this.driver.get(strStartURL);
 		this.driver.manage().window().maximize();
-		// Options opt=driver.manage();
-		// Reload because javascript error on first load page
-		// driver.findElement(By.xpath("//body")).sendKeys(Keys.F5);
-		delay(1000);
-		// driver.manage().timeouts().implicitlyWait(generalProperties.getDelayMillis(), TimeUnit.MILLISECONDS);
-		// driver.manage().timeouts().pageLoadTimeout(generalProperties.getDelayMillis(), TimeUnit.MILLISECONDS);
-		// driver.manage().timeouts().implicitlyWait(generalProperties.getDelayMillis(), TimeUnit.MILLISECONDS);
-		// webDriverWait = new WebDriverWait(driver, generalProperties.getDelayMillisBetweenCalls());
-		// log.debug("End. Load the webpage");
-		// launchInitJavaScripts("page1");
+		this.delay(1000);
 	}
 
 	// protected void delay()
@@ -159,11 +139,9 @@ public class BrowserContext
 	// e.printStackTrace();
 	// }
 	// }
-
 	public void launchInitJavaScripts(String strPageName)
 	{
 		JavascriptExecutor js = (JavascriptExecutor) this.driver;
-
 		if (strPageName.equalsIgnoreCase("page1"))
 		{
 			// js.executeScript(generalProperties.getProperty("javascript1"));
@@ -171,7 +149,6 @@ public class BrowserContext
 			// js.executeScript(generalProperties.getProperty("javascript3"));
 			// js.executeScript(generalProperties.getProperty("javascript4"));
 		}
-
 		if (strPageName.equalsIgnoreCase("page2"))
 		{
 			// js.executeScript(generalProperties.getProperty("javascript1"));
